@@ -7,13 +7,24 @@ import KeyboardArrowRightIcon from "@material-ui/icons/ArrowRight";
 const useStyles = makeStyles(theme => ({
   listItem: {
     paddingLeft: "8px",
+    backgroundColor: props => props.themeMode === 'dark' ? '#303030' : 'inherit',
+    '&.Mui-selected': {
+      backgroundColor: props => props.themeMode === 'dark' ? 'rgba(144, 202, 249, 0.16)' : 'rgba(3, 169, 244, 0.08)',
+      '&:hover': {
+        backgroundColor: props => props.themeMode === 'dark' ? 'rgba(144, 202, 249, 0.24)' : 'rgba(3, 169, 244, 0.12)',
+      },
+    },
+    '&:hover': {
+      backgroundColor: props => props.themeMode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+    },
+    borderRadius: 4,
   },
-  pageLink: ({ color }) => ({
+  pageLink: ({ color, themeMode }) => ({
     fontWeight: "500",
-    color,
+    color: themeMode === 'dark' ? '#90caf9' : color || theme.palette.primary.main,
   }),
-  breadcrumbLink: ({ color }) => ({
-    color: color,
+  breadcrumbLink: ({ color, themeMode }) => ({
+    color: themeMode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : color || 'rgba(0, 0, 0, 0.54)',
   }),
   breadcrumbSection: {
     whiteSpace: "nowrap",
@@ -21,11 +32,22 @@ const useStyles = makeStyles(theme => ({
     textOverflow: "ellipsis",
     display: "inline-block",
     maxWidth: "600px",
+    color: props => props.themeMode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.54)',
   },
 }));
 
-export default function PageListItem({ page, selected, onLinkClick }) {
-  const classes = useStyles({ color: page.color });
+// Create a function to check if props changed meaningfully for memoization
+function areEqual(prevProps, nextProps) {
+  return (
+    prevProps.page.id === nextProps.page.id &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.themeMode === nextProps.themeMode
+  );
+}
+
+// Using React.memo with custom comparison function for optimized rendering
+const PageListItem = React.memo(function PageListItem({ page, selected, onLinkClick, themeMode = 'light' }) {
+  const classes = useStyles({ color: page.color, themeMode });
   const selectedLisItemRef = useRef();
 
   useLayoutEffect(() => {
@@ -52,6 +74,8 @@ export default function PageListItem({ page, selected, onLinkClick }) {
     return page.bookName && page.bookUrl && showBreadCrumbs();
   }
 
+  const isDarkSelected = selected && themeMode === 'dark';
+
   return (
     <ListItem
       button
@@ -60,7 +84,12 @@ export default function PageListItem({ page, selected, onLinkClick }) {
       ref={selected ? selectedLisItemRef : null}
       alignItems={"flex-start"}
       onClick={event => handleLinkClick(event, page.url)}
-      style={{ paddingLeft: "16px" }}
+      style={{
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        marginBottom: "2px",
+      }}
+      className={classes.listItem}
     >
       <ListItemText
         primary={
@@ -70,6 +99,7 @@ export default function PageListItem({ page, selected, onLinkClick }) {
               href={page.url}
               className={classes.pageLink}
               onClick={event => handleLinkClick(event, page.url)}
+              style={{ color: isDarkSelected ? '#fff' : undefined }}
             >
               {page.bookName && `${page.bookName} - `}
               {page.name}
@@ -78,13 +108,18 @@ export default function PageListItem({ page, selected, onLinkClick }) {
           </>
         }
         secondary={
-          <Typography variant={"caption"} className={classes.breadcrumbSection}>
+          <Typography 
+            variant={"caption"} 
+            className={classes.breadcrumbSection} 
+            style={{ color: isDarkSelected ? 'rgba(255, 255, 255, 0.87)' : undefined }}
+          >
             {showHomeLink() && (
               <Link
                 title={page.bookUrl}
                 href={page.bookUrl}
                 onClick={event => handleLinkClick(event, page.bookUrl)}
                 className={classes.breadcrumbLink}
+                style={{ color: isDarkSelected ? 'rgba(255, 255, 255, 0.87)' : undefined }}
               >
                 Home
               </Link>
@@ -98,7 +133,11 @@ export default function PageListItem({ page, selected, onLinkClick }) {
                 return (
                   <React.Fragment key={breadcrumb.code}>
                     <KeyboardArrowRightIcon
-                      style={{ verticalAlign: "text-bottom", fontSize: "16px" }}
+                      style={{
+                        verticalAlign: "text-bottom",
+                        fontSize: "16px",
+                        color: isDarkSelected ? 'rgba(255, 255, 255, 0.87)' : 'inherit'
+                      }}
                     />
                     <Link
                       key={breadcrumb.code}
@@ -106,6 +145,7 @@ export default function PageListItem({ page, selected, onLinkClick }) {
                       href={breadcrumbUrl}
                       onClick={event => handleLinkClick(event, breadcrumbUrl)}
                       className={classes.breadcrumbLink}
+                      style={{ color: isDarkSelected ? 'rgba(255, 255, 255, 0.87)' : undefined }}
                     >
                       {breadcrumb.name}
                     </Link>
@@ -117,7 +157,9 @@ export default function PageListItem({ page, selected, onLinkClick }) {
       />
     </ListItem>
   );
-}
+}, areEqual);
+
+export default PageListItem;
 
 function isElementInViewport(element) {
   const rect = element.getBoundingClientRect();

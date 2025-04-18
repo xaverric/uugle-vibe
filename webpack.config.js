@@ -31,6 +31,9 @@ if (fileSystem.existsSync(secretsPath)) {
   alias["secrets"] = secretsPath;
 }
 
+// Store hot reload entries for the webserver
+var notHotReload = ["contentScript"];
+
 var options = {
   mode: process.env.NODE_ENV || "development",
   entry: {
@@ -38,10 +41,7 @@ var options = {
     contentScript: path.join(__dirname, "src", "pages", "Content", "index.js"),
     inject: path.join(__dirname, "src", "pages", "Content", "inject.js"),
     popup: path.join(__dirname, "src", "pages", "Popup", "index.jsx"),
-  },
-  //FIXME
-  chromeExtensionBoilerplate: {
-    notHotReload: ["contentScript"],
+    pluginManagement: path.join(__dirname, "src", "pages", "PluginManagement", "index.jsx"),
   },
   output: {
     path: path.resolve(__dirname, "build"),
@@ -64,7 +64,7 @@ var options = {
       },
       {
         test: new RegExp(".(" + fileExtensions.join("|") + ")$"),
-        loader: "file-loader?name=[name].[ext]",
+        type: "asset/resource",
         exclude: /node_modules/,
       },
       {
@@ -94,53 +94,60 @@ var options = {
     }),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
-    new CopyWebpackPlugin(
-      [
+    new CopyWebpackPlugin({
+      patterns: [
         {
           from: "src/manifest.json",
           to: path.join(__dirname, "build"),
           force: true,
-          transform: function (content, path) {
+          transform: function (content) {
             // generates the manifest file using the package.json informations
             return Buffer.from(
               JSON.stringify({
+                ...JSON.parse(content.toString()),
                 description: process.env.npm_package_description,
                 version: process.env.npm_package_version,
-                ...JSON.parse(content.toString()),
               })
             );
           },
         },
-      ],
-      {
-        logLevel: "info",
-        copyUnmodified: true,
-      }
-    ),
-    new CopyWebpackPlugin(
-      [
         {
           from: "src/pages/Content/content.styles.css",
           to: path.join(__dirname, "build"),
           force: true,
         },
-      ],
-      {
-        logLevel: "info",
-        copyUnmodified: true,
-      }
-    ),
+        {
+          from: "src/assets/img/icon-34.png",
+          to: path.join(__dirname, "build"),
+          force: true,
+        },
+        {
+          from: "src/assets/img/icon-128.png",
+          to: path.join(__dirname, "build"),
+          force: true,
+        }
+      ]
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "pages", "Popup", "index.html"),
       filename: "popup.html",
       chunks: ["popup"],
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "pages", "PluginManagement", "index.html"),
+      filename: "pluginManagement.html",
+      chunks: ["pluginManagement"],
+    }),
     new WriteFilePlugin(),
   ],
+  experiments: {
+    topLevelAwait: true,
+  },
+  devtool: env.NODE_ENV === "development" ? 'source-map' : false,
 };
 
-if (env.NODE_ENV === "development") {
-  options.devtool = "cheap-module-eval-source-map";
-}
+// Export hot reload info for the webserver
+exports.notHotReload = notHotReload;
 
 module.exports = options;
+

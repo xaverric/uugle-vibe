@@ -5,10 +5,18 @@ process.env.NODE_ENV = 'production';
 var webpack = require('webpack'),
   config = require('../webpack.config');
 
-delete config.chromeExtensionBoilerplate;
-
 config.mode = 'production';
 
-webpack(config, function (err) {
-  if (err) throw err;
+webpack(config, function (err, stats) {
+  if (err) {
+    console.error('Build failed with error:', err);
+    throw err;
+  }
+  
+  if (stats.hasErrors()) {
+    console.error('Build failed with compile errors:', stats.toJson().errors);
+    process.exit(1);
+  }
+  
+  console.log('Build completed successfully!');
 });

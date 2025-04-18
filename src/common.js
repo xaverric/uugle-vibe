@@ -1,3 +1,7 @@
+// Add a global self reference for elasticlunr to work in service worker context
+if (typeof window === 'undefined') {
+  self.window = self; // This is necessary for elasticlunr to assign lunr
+}
 import elasticlunr from "elasticlunr";
 
 const databaseVersion = 5;
@@ -13,7 +17,12 @@ export const indexScheme = "index";
  * @returns {Promise<IDBDatabase>}
  */
 export async function openDb() {
-  const request = indexedDB.open(booksDatabase, databaseVersion);
+  // Make sure we're in an environment with indexedDB available
+  if (!self.indexedDB) {
+    throw new Error("IndexedDB is not available in this environment");
+  }
+
+  const request = self.indexedDB.open(booksDatabase, databaseVersion);
 
   request.onupgradeneeded = async event => {
     const db = event.target.result;
@@ -46,15 +55,12 @@ export async function openDb() {
         keyPath: "id",
       });
     }
-
-    console.log("uuGle: database initialized");
   };
 
   return new Promise((resolve, reject) => {
     request.onsuccess = event => resolve(event.target.result);
     request.onerror = event => {
-      console.log(`uuGle: error opening database ${booksDatabase}`);
-      reject();
+      reject(event.target.error);
     };
   });
 }
@@ -74,13 +80,12 @@ export async function requestToPromise(request) {
 export const indexObjectId = 1;
 
 async function migrate4to5(event) {
-  console.log("uuGle: running data migration from version 4 to 5");
 
   //read all pages
   const transaction = event.target.transaction;
 
   transaction.onerror = () => {
-    console.error("uuGle: book indexing error");
+    console.error("uugle-vibe: book indexing error");
   };
 
   const indexStore = transaction.objectStore(indexScheme);
@@ -112,8 +117,4 @@ async function migrate4to5(event) {
     indexDump: JSON.stringify(index),
   };
   await requestToPromise(indexStore.put(indexObject));
-
-  console.log(
-    "uuGle: data migration from version 4 to 5 completed successfully"
-  );
 }

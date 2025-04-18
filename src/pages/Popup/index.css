@@ -1,6 +1,12 @@
 body {
   width: 640px;
   min-height: 200px;
-  padding: 2px;
-  overflow: auto;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+#app-container {
+  border-radius: 8px;
+  overflow: hidden;
 }
