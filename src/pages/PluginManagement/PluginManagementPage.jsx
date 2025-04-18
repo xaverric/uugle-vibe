@@ -397,7 +397,7 @@ async function fetchDataFromDb() {
     
     return combinedData;
   } catch (error) {
-    console.error("uuGle: Error fetching data from IndexedDB:", error);
+    console.error("uugle-vibe: Error fetching data from IndexedDB:", error);
     return [];
   }
 }
@@ -426,7 +426,7 @@ async function fetchBooksFromDb() {
     
     return booksWithPageCount;
   } catch (error) {
-    console.error("uuGle: Error fetching books from IndexedDB:", error);
+    console.error("uugle-vibe: Error fetching books from IndexedDB:", error);
     return [];
   }
 }
@@ -614,8 +614,8 @@ const PluginManagementPage = () => {
       const fetchedData = await fetchDataFromDb();
       setData(fetchedData);
     } catch (error) {
-      console.error("Error loading data:", error);
-      setSnackbarMessage("Failed to load data from database");
+      console.error("uugle-vibe: Error fetching data from IndexedDB:", error);
+      setSnackbarMessage("Error loading data: " + error.message);
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
@@ -629,8 +629,8 @@ const PluginManagementPage = () => {
       const fetchedBooks = await fetchBooksFromDb();
       setBooksData(fetchedBooks);
     } catch (error) {
-      console.error("Error loading books data:", error);
-      setSnackbarMessage("Failed to load books data from database");
+      console.error("uugle-vibe: Error fetching books from IndexedDB:", error);
+      setSnackbarMessage("Error loading books: " + error.message);
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
@@ -1543,7 +1543,7 @@ const PluginManagementPage = () => {
             gutterBottom
             style={{ color: themeMode === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.87)' }}
           >
-            About uuGle
+            About uugle-vibe
           </Typography>
           
           <Paper 
@@ -1563,7 +1563,7 @@ const PluginManagementPage = () => {
             
             <Box my={2}>
               <Typography variant="body1" paragraph style={{ color: themeMode === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.87)' }}>
-                <strong>uuGle</strong> is a Chrome extension that indexes and provides fast search capabilities for Unicorn Universe applications.
+                <strong>uugle-vibe</strong> is a fresh fork and successor of the legacy uuGle Chrome extension. It brings a faster, cleaner, and more powerful way to search through Unicorn 🦄 BookKit books.
               </Typography>
               
               <Typography variant="body1" paragraph style={{ color: themeMode === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.87)' }}>
@@ -1571,17 +1571,35 @@ const PluginManagementPage = () => {
               </Typography>
               
               <Typography variant="body1" paragraph style={{ color: themeMode === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.87)' }}>
-                <strong>Features:</strong>
+                <strong>What's New in uugle-vibe:</strong>
                 <ul>
-                  <li>Quick search through uuBookKit, uuDocKit, and uuManagementKit pages</li>
-                  <li>Offline access to previously visited pages</li>
-                  <li>Dark/Light theme support</li>
-                  <li>Import/Export database functionality</li>
+                  <li>⚙️ Upgraded to Manifest V3</li>
+                  <li>📦 Modernized stack — updated React, Webpack, and other dependencies</li>
+                  <li>📚 Indexing now includes Management Kit pages</li>
+                  <li>🧩 Plugin Management Panel
+                    <ul>
+                      <li>View and filter pages and books stored in the database</li>
+                      <li>Delete individual pages or whole books (along with all related pages)</li>
+                      <li>⭐ Mark books as favorites for easier access</li>
+                      <li>📤 Export: Save entire database to a JSON file</li>
+                      <li>📥 Import: Load previously exported JSON — only new records are added</li>
+                      <li>🗑️ Delete all: Wipe the complete plugin database</li>
+                    </ul>
+                  </li>
+                  <li>🔍 Popup UI improvements
+                    <ul>
+                      <li>Shortcut button to open the Plugin Management panel</li>
+                      <li>Book filtering with :book keyword to filter search within a selected book</li>
+                      <li>Selected books can be added to favorites</li>
+                      <li>Slight UI refresh</li>
+                    </ul>
+                  </li>
+                  <li>🌙 Dark mode</li>
                 </ul>
               </Typography>
               
               <Typography variant="body1" paragraph style={{ color: themeMode === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.87)' }}>
-                <strong>Usage:</strong> Press <code style={{ backgroundColor: themeMode === 'dark' ? '#424242' : '#f5f5f5', padding: '2px 4px', borderRadius: 4 }}>Ctrl+Shift+F</code> (or <code style={{ backgroundColor: themeMode === 'dark' ? '#424242' : '#f5f5f5', padding: '2px 4px', borderRadius: 4 }}>⌘+Shift+F</code> on Mac) to open the search popup from any page. Type your search query to find relevant content.
+                <strong>Usage:</strong> Press <code style={{ backgroundColor: themeMode === 'dark' ? '#424242' : '#f5f5f5', padding: '2px 4px', borderRadius: 4 }}>Ctrl+Shift+K</code> (or <code style={{ backgroundColor: themeMode === 'dark' ? '#424242' : '#f5f5f5', padding: '2px 4px', borderRadius: 4 }}>⌘+Shift+K</code> on Mac) to open the search popup from any page. Type your search query to find relevant content.
               </Typography>
             </Box>
             

@@ -287,7 +287,7 @@ function Popup() {
           await fetchBooksFromSearchResults();
         }
       } catch (error) {
-        console.error("uuGle: Error fetching books:", error);
+        console.error("uugle-vibe: Error fetching books:", error);
         
         // Retry logic - try up to 3 times with increasing delays
         if (retryCount < 2) {
@@ -358,7 +358,7 @@ function Popup() {
         }
       }
     } catch (error) {
-      console.error("uuGle: Error in fallback book loading:", error);
+      console.error("uugle-vibe: Error in fallback book loading:", error);
       
       // Retry logic for fallback
       if (retryCount < 2) {
